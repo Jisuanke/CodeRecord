@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="lib/codemirror.js"></script>
+    <link rel="stylesheet" href="lib/codemirror.css"/>
+    <title>代码录放</title>
+</head>
+<body>
+<form action="">
+    <textarea name="code" id="code" cols="30" rows="10"></textarea>
+    <input type="button" onclick="redo()" value="回放" width="30"/>
+    <textarea name="re" id="re" cols="30" rows="10"></textarea>
+</form>
+<script>
+    //初始化两个CodeMirror编辑区域
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true
+    });
+    var reeditor = CodeMirror.fromTextArea(document.getElementById("re"), {
+        lineNumbers: true
+    });
+</script>
+</body>
+</html>
