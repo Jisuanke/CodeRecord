@@ -13,13 +13,62 @@
     <textarea name="re" id="re" cols="30" rows="10"></textarea>
 </form>
 <script>
-    //初始化两个CodeMirror编辑区域
+    //屏蔽剪切、复制、粘贴
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true
     });
     var reeditor = CodeMirror.fromTextArea(document.getElementById("re"), {
         lineNumbers: true
     });
+
+    var i = 0;
+    var time, beginTime, outTime, word, beginWord, action;
+    var record = [];
+
+    editor.on("cursorActivity", function () {
+        var pos = editor.getCursor();
+        var date = new Date();
+        if ( i == 0 ) {
+            beginTime = date.getTime();
+            time = 0;
+            word = editor.getValue();
+            action = "insert";
+        }
+        else {
+            word = editor.getValue();
+            time = date.getTime() - beginTime;
+            beginTime = date.getTime();
+            if ( word.length < beginWord.length ) {
+                word = "\\b";
+                action = "backspace"
+            }
+            else if ( pos.line > record[i - 1].line ) {
+                word = "\\n";
+                action = "enter";
+            }
+            else {
+                word = editor.getValue().replace(beginWord, "");
+                action = "insert";
+            }
+        }
+        if ( editor.getValue() == "" ) {
+            action = "clean";
+        }
+        if ( word == "" ) {
+            action = "move";
+        }
+
+        var con = editor.getSelection();
+        console.log(con);
+
+        //行号 字符位置 字符 时间
+        record.push({"line":pos.line, "ch":pos.ch, "content":word, "onTime":time, "action": action});
+        beginWord = editor.getValue();
+        console.log(record[i]);
+        i++;
+    });
+
+    i = 0;
 </script>
 </body>
 </html>
