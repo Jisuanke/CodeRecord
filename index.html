@@ -13,159 +13,226 @@
     <textarea name="re" id="re" cols="30" rows="10"></textarea>
 </form>
 <script>
-    var i = 0, j = 0, flag = 0;
-    var time, beginTime, outTime, word, beginWord, action, select;
-    var record = [];
-    var cu1, cu2;
+/*
+ 这是一大票变量，说不准会不会用到
+ */
+var i = 0, j = 0, flag = 0;
+var time, beginTime, outTime, word, beginWord, action, select;
+var record = [];
+var cu1, cu2;
 
-    //屏蔽剪切、复制、粘贴
-    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        lineNumbers: true
-    });
-    var reeditor = CodeMirror.fromTextArea(document.getElementById("re"), {
-        lineNumbers: true
-    });
+/*
+ 将两个textarea渲染成了CodeMirror对象，显示行号
+ */
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+    lineNumbers: true
+});
+var reeditor = CodeMirror.fromTextArea(document.getElementById("re"), {
+    lineNumbers: true
+});
 
-    editor.focus();
+/*
+ 给输入文本框焦点
+ */
+editor.focus();
 
-    editor.on("cursorActivity", function () {
-        var pos = editor.getCursor();
-        var date = new Date();
-        if ( i == 0 ) {
-            beginTime = date.getTime();
-            time = 0;
-            word = editor.getValue();
-            action = "insert";
-            cu1 = editor.getCursor();
+/*
+ 事件：光标活动
+ */
+editor.on("cursorActivity", function () {
+    /*
+     获取进行操作的光标位置 pos 和 当前发生时间的相对时间
+     */
+    var pos = editor.getCursor();
+    var date = new Date();
+    /*
+     初始化第一次操作，设置开始时间为 0
+     文本区首次操作是插入操作
+     文本区默认为空
+     */
+    if ( i == 0 ) {
+        beginTime = date.getTime();
+        time = 0;
+        word = editor.getValue();
+        action = "insert";
+        cu1 = editor.getCursor();
+    }
+    else {
+        word = editor.getValue();
+        /*
+         计算此次操作的时间与上次操作的时间的差，为时间间隔time
+         为下次操作提供其上次操作时间beginTime
+         */
+        time = date.getTime() - beginTime;
+        beginTime = date.getTime();
+        cu2 = editor.getCursor();
+
+        /*
+         判断退格行为（action：backspace）
+         如果当前文本区内容长度小于上次操作时文本区内容长度，说明进行了退格操作
+         backspace直接操作时，操作内容 word 为空
+         */
+        if ( word.length < beginWord.length ) {
+            word = "";
+            action = "backspace";
+            /*
+             获取当前位置光标cu
+             若该位置与前一位置间存在内容，说明是选择后的文本被新输入的文本所覆盖
+             操作内容 word 为新插入的内容
+             */
+            var cu = editor.getCursor();
+            if ( editor.getRange(CodeMirror.Pos(cu.line, cu.ch - 1), cu ) != "" ) {
+                word = editor.getRange(CodeMirror.Pos(cu.line, cu.ch - 1), cu);
+            }
+        }
+        /*
+         判断换行行为（action：enter）
+         如果当前操作位置的行号大于上一操作位置的行号，说明进行了换行操作
+         换行操作的操作内容 word 为换行符 \\n
+         */
+        else if ( pos.line > record[i - 1].line ) {
+            word = "\\n";
+            action = "enter";
         }
         else {
-            word = editor.getValue();
-            time = date.getTime() - beginTime;
-            beginTime = date.getTime();
-            cu2 = editor.getCursor();
-
-            if ( word.length < beginWord.length ) {
-                word = "";
-                action = "backspace";
-                var cu = editor.getCursor();
-                if ( editor.getRange(CodeMirror.Pos(cu.line, cu.ch - 1), cu ) != "" ) {
-                    word = editor.getRange(CodeMirror.Pos(cu.line, cu.ch - 1), cu);
-                }
+            /*
+             判断输入行为（action：insert）
+             如果当前文本区内容 word 与上一次操作结束时的内容 beginWord 不同，说明进行了输入操作
+             操作内容 word 为当前位置光标 cu2 与上次操作后的光标位置 cu1 之间的内容
+             可以处理粘贴操作
+             */
+            if ( word != beginWord ) {
+                word = editor.getRange(cu1, cu2);
+                action = "insert";
             }
-            else if ( pos.line > record[i - 1].line ) {
-                word = "\\n";
-                action = "enter";
-            }
+            /*
+             如果当前文本区内容 word 与上一次操作结束时的内容 beginWord 相同，判定为移动光标的行为
+             action：move
+             */
             else {
-                if ( word != beginWord ) {
-                    word = editor.getRange(cu1, cu2);
-                    action = "insert";
+                word = "";
+                action = "move";
+            }
+        }
+    }
+    /*
+     判断移动光标的行为（action：move）
+     如果操作内容为空，行为则为移动光标
+     select 为当前文本区所有内容
+     */
+    if ( word == "" ) {
+        action = "move";
+        select = editor.getValue();
+    }
+
+    /*
+     判断选择行为（action：selected）
+     如果能够获取到选择内容，行为则为选择
+     select 为所选内容
+     操作内容为空
+     */
+    select = editor.getSelection();
+    if ( select != "" ) {
+        action = "selected";
+        word = "";
+    }
+
+    /*
+     JSON
+     line：当前操作位置行号；ch：当前行操作位置；content：当前操作的内容；
+     onTime：与上一次操作的相对时间间隔；action：进行的操作代号；select：被选中的内容
+     */
+    record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select});
+    console.log(record[i]);
+    /*
+     提供给下一轮循环使用的变量
+     */
+    cu1 = editor.getCursor();
+    beginWord = editor.getValue();
+    i++;
+});
+
+function replay() {
+    reeditor.focus();
+    if ( j == 0 ) {
+        reeditor.setValue(record[j].content);
+        reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+        j++;
+        replay();
+    }
+    else if ( j < i ) {
+        setTimeout(function () {
+            if ( record[j].action == "insert" ) {
+                if ( record[j - 1].action == "move" ) {
+                    reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
+                            CodeMirror.Pos(record[j - 1].line, record[j - 1].ch));
                 }
                 else {
-                    word = "";
-                    action = "move";
+                    reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j].line, record[j].ch),
+                            CodeMirror.Pos(record[j].line, record[j].ch));
                 }
             }
-        }
-        if ( word == "" ) {
-            action = "move";
-            select = editor.getValue();
-        }
-
-        select = editor.getSelection();
-        if ( select != "" ) {
-            action = "selected";
-            word = "";
-        }
-
-        cu1 = editor.getCursor();
-        record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select});
-        console.log(record[i]);
-        beginWord = editor.getValue();
-        i++;
-    });
-
-    function replay() {
-        reeditor.focus();
-        if ( j == 0 ) {
-            reeditor.setValue(record[j].content);
-            reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
-            j++;
-            replay();
-        }
-        else if ( j < i ) {
-            setTimeout(function () {
-                if ( record[j].action == "insert" ) {
-                    if ( record[j - 1].action == "move" ) {
-                        reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
-                                CodeMirror.Pos(record[j - 1].line, record[j - 1].ch));
-                    }
-                    else {
-                        reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j].line, record[j].ch),
-                                CodeMirror.Pos(record[j].line, record[j].ch));
-                    }
+            else if ( record[j].action == "enter" ) {
+                reeditor.replaceRange("\n", CodeMirror.Pos(record[j].line, record[j].ch),
+                        CodeMirror.Pos(record[j].line, record[j].ch));
+                reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+            }
+            else if ( record[j].action == "move" ) {
+                if ( record[j].select == "" ) {
+                    reeditor.replaceSelection("");
                 }
-                else if ( record[j].action == "enter" ) {
-                    reeditor.replaceRange("\n", CodeMirror.Pos(record[j].line, record[j].ch),
+                reeditor.setValue(reeditor.getValue());
+                reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+            }
+            else if ( record[j].action == "backspace" ) {
+                if ( record[j - 1].action != "selected" ) {
+                    reeditor.replaceRange("", CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
                             CodeMirror.Pos(record[j].line, record[j].ch));
                     reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
                 }
-                else if ( record[j].action == "move" ) {
-                    if ( record[j].select == "" ) {
-                        reeditor.replaceSelection("");
-                    }
-                    reeditor.setValue(reeditor.getValue());
+                else {
+                    reeditor.replaceSelection(record[j].content);
                     reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
                 }
-                else if ( record[j].action == "backspace" ) {
-                    if ( record[j - 1].action != "selected" ) {
-                        reeditor.replaceRange("", CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
-                                CodeMirror.Pos(record[j].line, record[j].ch));
-                        reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
-                    }
-                    else {
-                        reeditor.replaceSelection(record[j].content);
-                        reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
-                    }
+            }
+            else if ( record[j].action == "selected" ) {
+                if ( record[j].select == reeditor.getValue() ) {
+                    reeditor.setSelection(CodeMirror.Pos(reeditor.firstLine(), 0), CodeMirror.Pos(reeditor.lastLine()));
                 }
-                else if ( record[j].action == "selected" ) {
-                    if ( record[j].select == reeditor.getValue() ) {
-                        reeditor.setSelection(CodeMirror.Pos(reeditor.firstLine(), 0), CodeMirror.Pos(reeditor.lastLine()));
-                    }
-                    else {
-                        flag = j;
-                        for ( ; ; ) {
-                            j++;
-                            if ( j < i ) {
-                                if ( record[j].action != "selected" ) {
-                                    break;
-                                }
-                            }
-                            else {
+                else {
+                    flag = j;
+                    for ( ; ; ) {
+                        j++;
+                        if ( j < i ) {
+                            if ( record[j].action != "selected" ) {
                                 break;
                             }
                         }
-                        j--;
-                        if ( record[j].line <= record[flag].line && record[j].ch <= record[flag].ch) {
-                            reeditor.setSelection(CodeMirror.Pos(record[j].line, record[j].ch),
-                                    CodeMirror.Pos(record[flag].line, record[flag].ch + 1));
-                        }
                         else {
-                            reeditor.setSelection(CodeMirror.Pos(record[flag].line, record[flag].ch - 1),
-                                    CodeMirror.Pos(record[j].line, record[j].ch));
+                            break;
                         }
                     }
+                    j--;
+                    if ( record[j].line <= record[flag].line && record[j].ch <= record[flag].ch) {
+                        reeditor.setSelection(CodeMirror.Pos(record[j].line, record[j].ch),
+                                CodeMirror.Pos(record[flag].line, record[flag].ch + 1));
+                    }
+                    else {
+                        reeditor.setSelection(CodeMirror.Pos(record[flag].line, record[flag].ch - 1),
+                                CodeMirror.Pos(record[j].line, record[j].ch));
+                    }
                 }
-                j++;
-                if ( j >= i ) {
-                    return ;
-                }
-                else {
-                    replay();
-                }
-            }, parseInt(record[j].onTime));
-        }
+            }
+            j++;
+            if ( j >= i ) {
+                return ;
+            }
+            else {
+                replay();
+            }
+        }, parseInt(record[j].onTime));
     }
+}
 </script>
 </body>
 </html>
