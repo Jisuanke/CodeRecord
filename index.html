@@ -13,24 +13,20 @@
     <textarea name="re" id="re" cols="30" rows="10"></textarea>
 </form>
 <script>
-    var i = 0;
+    var i = 0, j = 0, flag = 0;
     var time, beginTime, outTime, word, beginWord, action, select;
     var record = [];
+    var cu1, cu2;
 
     //屏蔽剪切、复制、粘贴
     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        lineNumbers: true,
-        extraKeys: {
-            "Ctrl-A": function () {
-                CodeMirror.commands.selectAll(editor);
-                action = "selectAll";
-                select = editor.getValue();
-            }
-        }
+        lineNumbers: true
     });
     var reeditor = CodeMirror.fromTextArea(document.getElementById("re"), {
         lineNumbers: true
     });
+
+    editor.focus();
 
     editor.on("cursorActivity", function () {
         var pos = editor.getCursor();
@@ -40,50 +36,134 @@
             time = 0;
             word = editor.getValue();
             action = "insert";
+            cu1 = editor.getCursor();
         }
         else {
             word = editor.getValue();
             time = date.getTime() - beginTime;
             beginTime = date.getTime();
+            cu2 = editor.getCursor();
+
             if ( word.length < beginWord.length ) {
-                word = "\\b";
-                action = "backspace"
+                word = "";
+                action = "backspace";
+                var cu = editor.getCursor();
+                if ( editor.getRange(CodeMirror.Pos(cu.line, cu.ch - 1), cu ) != "" ) {
+                    word = editor.getRange(CodeMirror.Pos(cu.line, cu.ch - 1), cu);
+                }
             }
             else if ( pos.line > record[i - 1].line ) {
                 word = "\\n";
                 action = "enter";
             }
             else {
-                word = editor.getValue().replace(beginWord, "");
-                action = "insert";
+                if ( word != beginWord ) {
+                    word = editor.getRange(cu1, cu2);
+                    action = "insert";
+                }
+                else {
+                    word = "";
+                    action = "move";
+                }
             }
-        }
-        if ( editor.getValue() == "" ) {
-            action = "clean";
         }
         if ( word == "" ) {
             action = "move";
+            select = editor.getValue();
         }
 
         select = editor.getSelection();
         if ( select != "" ) {
             action = "selected";
+            word = "";
         }
 
+        cu1 = editor.getCursor();
         record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select});
         console.log(record[i]);
         beginWord = editor.getValue();
         i++;
     });
 
-    var j = 0;
-
     function replay() {
+        reeditor.focus();
         if ( j == 0 ) {
-            reeditor.setValue = record[j].content;
+            reeditor.setValue(record[j].content);
+            reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+            j++;
+            replay();
         }
-        if ( j < i ) {
-
+        else if ( j < i ) {
+            setTimeout(function () {
+                if ( record[j].action == "insert" ) {
+                    if ( record[j - 1].action == "move" ) {
+                        reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
+                                CodeMirror.Pos(record[j - 1].line, record[j - 1].ch));
+                    }
+                    else {
+                        reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j].line, record[j].ch),
+                                CodeMirror.Pos(record[j].line, record[j].ch));
+                    }
+                }
+                else if ( record[j].action == "enter" ) {
+                    reeditor.replaceRange("\n", CodeMirror.Pos(record[j].line, record[j].ch),
+                            CodeMirror.Pos(record[j].line, record[j].ch));
+                    reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+                }
+                else if ( record[j].action == "move" ) {
+                    if ( record[j].select == "" ) {
+                        reeditor.replaceSelection("");
+                    }
+                    reeditor.setValue(reeditor.getValue());
+                    reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+                }
+                else if ( record[j].action == "backspace" ) {
+                    if ( record[j - 1].action != "selected" ) {
+                        reeditor.replaceRange("", CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
+                                CodeMirror.Pos(record[j].line, record[j].ch));
+                        reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+                    }
+                    else {
+                        reeditor.replaceSelection(record[j].content);
+                        reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+                    }
+                }
+                else if ( record[j].action == "selected" ) {
+                    if ( record[j].select == reeditor.getValue() ) {
+                        reeditor.setSelection(CodeMirror.Pos(reeditor.firstLine(), 0), CodeMirror.Pos(reeditor.lastLine()));
+                    }
+                    else {
+                        flag = j;
+                        for ( ; ; ) {
+                            j++;
+                            if ( j < i ) {
+                                if ( record[j].action != "selected" ) {
+                                    break;
+                                }
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                        j--;
+                        if ( record[j].line <= record[flag].line && record[j].ch <= record[flag].ch) {
+                            reeditor.setSelection(CodeMirror.Pos(record[j].line, record[j].ch),
+                                    CodeMirror.Pos(record[flag].line, record[flag].ch + 1));
+                        }
+                        else {
+                            reeditor.setSelection(CodeMirror.Pos(record[flag].line, record[flag].ch - 1),
+                                    CodeMirror.Pos(record[j].line, record[j].ch));
+                        }
+                    }
+                }
+                j++;
+                if ( j >= i ) {
+                    return ;
+                }
+                else {
+                    replay();
+                }
+            }, parseInt(record[j].onTime));
         }
     }
 </script>
