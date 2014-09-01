@@ -14,6 +14,9 @@
 </form>
 <script>
 /*
+录制
+ */
+/*
  这是一大票变量，说不准会不会用到
  */
 var i = 0, j = 0, flag = 0;
@@ -67,6 +70,10 @@ editor.on("cursorActivity", function () {
         beginTime = date.getTime();
         cu2 = editor.getCursor();
 
+        if ( word == "" ) {
+            action = "clean";
+        }
+
         /*
          判断退格行为（action：backspace）
          如果当前文本区内容长度小于上次操作时文本区内容长度，说明进行了退格操作
@@ -106,23 +113,14 @@ editor.on("cursorActivity", function () {
                 action = "insert";
             }
             /*
+             判断移动光标的行为（action：move）
              如果当前文本区内容 word 与上一次操作结束时的内容 beginWord 相同，判定为移动光标的行为
-             action：move
              */
             else {
                 word = "";
                 action = "move";
             }
         }
-    }
-    /*
-     判断移动光标的行为（action：move）
-     如果操作内容为空，行为则为移动光标
-     select 为当前文本区所有内容
-     */
-    if ( word == "" ) {
-        action = "move";
-        select = editor.getValue();
     }
 
     /*
@@ -152,8 +150,14 @@ editor.on("cursorActivity", function () {
     i++;
 });
 
+/*
+回放，递归
+ */
 function replay() {
     reeditor.focus();
+    /*
+    初始化回放文本区
+     */
     if ( j == 0 ) {
         reeditor.setValue(record[j].content);
         reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
@@ -161,26 +165,45 @@ function replay() {
         replay();
     }
     else if ( j < i ) {
+        /*
+        延时回放
+        以当前操作的间隔时间 onTime 作为延时时间
+         */
         setTimeout(function () {
+            /*
+            处理 insert 活动
+             */
             if ( record[j].action == "insert" ) {
+                /*
+                中部位置插入字符
+                 */
                 if ( record[j - 1].action == "move" ) {
                     reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
                             CodeMirror.Pos(record[j - 1].line, record[j - 1].ch));
                 }
+                /*
+                尾部位置插入字符
+                 */
                 else {
                     reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j].line, record[j].ch),
                             CodeMirror.Pos(record[j].line, record[j].ch));
                 }
             }
+            /*
+            处理 enter 活动
+             */
             else if ( record[j].action == "enter" ) {
                 reeditor.replaceRange("\n", CodeMirror.Pos(record[j].line, record[j].ch),
                         CodeMirror.Pos(record[j].line, record[j].ch));
                 reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
             }
+            /*
+            处理 move 活动
+             */
             else if ( record[j].action == "move" ) {
-                if ( record[j].select == "" ) {
-                    reeditor.replaceSelection("");
-                }
+                /*
+                使用 backspace 删除文本区内容时，若最终清空了文本区，会判定为 move 活动
+                 */
                 reeditor.setValue(reeditor.getValue());
                 reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
             }
