@@ -14,7 +14,7 @@
 </form>
 <script>
 /*
-已知问题：不支持中文输入，不支持双击选中单词与三击选中整行
+已知问题：不支持中文输入，不支持双击选中单词与三击选中整行，自动缩进
  */
 /*
 录制
@@ -28,8 +28,7 @@ var cu1, cu2;
  将两个textarea渲染成了CodeMirror对象，显示行号
  */
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-    lineNumbers: true,
-    smartIndent: false
+    lineNumbers: true
 });
 var reeditor = CodeMirror.fromTextArea(document.getElementById("re"), {
     lineNumbers: true
