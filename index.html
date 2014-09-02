@@ -207,23 +207,44 @@ function replay() {
                 reeditor.setValue(reeditor.getValue());
                 reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
             }
+            /*
+            处理 backspace 活动
+             */
             else if ( record[j].action == "backspace" ) {
+                /*
+                如果没有选中任何内容，则删除前面的一个字符
+                 */
                 if ( record[j - 1].action != "selected" ) {
                     reeditor.replaceRange("", CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
                             CodeMirror.Pos(record[j].line, record[j].ch));
                     reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
                 }
+                /*
+                若当前存在选中的内容，则删除选中的内容
+                 */
                 else {
                     reeditor.replaceSelection(record[j].content);
                     reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
                 }
             }
+            /*
+            处理 selected 活动
+             */
             else if ( record[j].action == "selected" ) {
+                /*
+                如果选中的内容与文本区所有内容相同，则选中文本区的全部内容
+                 */
                 if ( record[j].select == reeditor.getValue() ) {
                     reeditor.setSelection(CodeMirror.Pos(reeditor.firstLine(), 0), CodeMirror.Pos(reeditor.lastLine()));
                 }
+                /*
+                如果只是选中了一部分内容
+                 */
                 else {
                     flag = j;
+                    /*
+                    循环确定选中了哪一个光标范围内的内容
+                     */
                     for ( ; ; ) {
                         j++;
                         if ( j < i ) {
@@ -236,6 +257,9 @@ function replay() {
                         }
                     }
                     j--;
+                    /*
+                    根据选中的方向分别操作（从前向后选择或从后向前选择）
+                     */
                     if ( record[j].line <= record[flag].line && record[j].ch <= record[flag].ch) {
                         reeditor.setSelection(CodeMirror.Pos(record[j].line, record[j].ch),
                                 CodeMirror.Pos(record[flag].line, record[flag].ch + 1));
