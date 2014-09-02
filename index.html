@@ -14,13 +14,13 @@
 </form>
 <script>
 /*
-已知问题：不支持中文输入，不支持双击选中单词与三击选中整行，回放过程处理光标移动时会出现额外空行，不支持处理自动缩进
+已知问题：不支持中文输入，不支持双击选中单词与三击选中整行
  */
 /*
 录制
  */
 var i = 0, j = 0, flag = 0;
-var time, beginTime, outTime, word, beginWord, action, select;
+var time, beginTime, outTime, word, beginWord, action, select, beginLine;
 var record = [];
 var cu1, cu2;
 
@@ -60,6 +60,7 @@ editor.on("cursorActivity", function () {
         word = editor.getValue();
         action = "insert";
         cu1 = editor.getCursor();
+        beginLine = editor.lineCount();
     }
     else {
         word = editor.getValue();
@@ -98,7 +99,7 @@ editor.on("cursorActivity", function () {
          如果当前操作位置的行号大于上一操作位置的行号，说明进行了换行操作
          换行操作的操作内容 word 为换行符 \\n
          */
-        else if ( pos.line > record[i - 1].line ) {
+        else if ( editor.lineCount() > beginLine ) {
             word = "\\n";
             action = "enter";
         }
@@ -148,6 +149,7 @@ editor.on("cursorActivity", function () {
      */
     cu1 = editor.getCursor();
     beginWord = editor.getValue();
+    beginLine = editor.lineCount();
     i++;
 });
 
