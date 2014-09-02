@@ -14,10 +14,10 @@
 </form>
 <script>
 /*
-录制
+已知问题：不支持中文输入，不支持双击选中单词与三击选中整行，回放过程处理光标移动时会出现额外空行，不支持处理自动缩进
  */
 /*
- 这是一大票变量，说不准会不会用到
+录制
  */
 var i = 0, j = 0, flag = 0;
 var time, beginTime, outTime, word, beginWord, action, select;
@@ -28,7 +28,8 @@ var cu1, cu2;
  将两个textarea渲染成了CodeMirror对象，显示行号
  */
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-    lineNumbers: true
+    lineNumbers: true,
+    smartIndent: false
 });
 var reeditor = CodeMirror.fromTextArea(document.getElementById("re"), {
     lineNumbers: true
