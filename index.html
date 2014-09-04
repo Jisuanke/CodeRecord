@@ -14,12 +14,12 @@
 </form>
 <script>
 /*
-已知问题：不支持中文输入，不支持双击选中单词与三击选中整行，自动缩进
+已知问题：不支持中文输入，不支持双击选中单词与三击选中整行
  */
 /*
 录制
  */
-var i = 0, j = 0, flag = 0;
+var i = 0, j = 0, flag = 0, indent = 0;
 var time, beginTime, outTime, word, beginWord, action, select, beginLine;
 var record = [];
 var cu1, cu2;
@@ -101,6 +101,7 @@ editor.on("cursorActivity", function () {
         else if ( editor.lineCount() > beginLine ) {
             word = "\\n";
             action = "enter";
+            indent = editor.getCursor().ch / 4;
         }
         else {
             /*
@@ -141,7 +142,7 @@ editor.on("cursorActivity", function () {
      line：当前操作位置行号；ch：当前行操作位置；content：当前操作的内容；
      onTime：与上一次操作的相对时间间隔；action：进行的操作代号；select：被选中的内容
      */
-    record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select});
+    record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
     console.log(record[i]);
     /*
      提供给下一轮循环使用的变量
@@ -197,7 +198,12 @@ function replay() {
             else if ( record[j].action == "enter" ) {
                 reeditor.replaceRange("\n", CodeMirror.Pos(record[j].line, record[j].ch),
                         CodeMirror.Pos(record[j].line, record[j].ch));
-                reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+                if ( record[j].indent != 0 ) {
+                    for ( var c = 0; c < record[j].indent; c++ ) {
+                        reeditor.replaceRange("\t", reeditor.getCursor(), reeditor.getCursor());
+                    }
+                }
+                reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch + record[j].indent));
             }
             /*
             处理 move 活动
