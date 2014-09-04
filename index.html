@@ -101,7 +101,7 @@ editor.on("cursorActivity", function () {
         else if ( editor.lineCount() > beginLine ) {
             word = "\\n";
             action = "enter";
-            indent = editor.getCursor().ch / 4;
+            indent = editor.getCursor().ch;
         }
         else {
             /*
@@ -188,7 +188,7 @@ function replay() {
                         CodeMirror.Pos(record[j].line, record[j].ch));
                 if ( record[j].indent != 0 ) {
                     for ( var c = 0; c < record[j].indent; c++ ) {
-                        reeditor.replaceRange("\t", reeditor.getCursor(), reeditor.getCursor());
+                        reeditor.replaceRange(" ", reeditor.getCursor(), reeditor.getCursor());
                     }
                 }
                 reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch + record[j].indent));
