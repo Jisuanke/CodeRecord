@@ -177,20 +177,8 @@ function replay() {
             处理 insert 活动
              */
             if ( record[j].action == "insert" ) {
-                /*
-                中部位置插入字符
-                 */
-                if ( record[j - 1].action == "move" ) {
-                    reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
-                            CodeMirror.Pos(record[j - 1].line, record[j - 1].ch));
-                }
-                /*
-                尾部位置插入字符
-                 */
-                else {
-                    reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j].line, record[j].ch),
-                            CodeMirror.Pos(record[j].line, record[j].ch));
-                }
+                reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
+                        CodeMirror.Pos(record[j - 1].line, record[j - 1].ch));
             }
             /*
             处理 enter 活动
