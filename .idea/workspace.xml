@@ -46,8 +46,8 @@
       <file leaf-file-name="Record.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Record.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6270627" vertical-offset="0" max-vertical-offset="5301">
-              <caret line="20" column="41" selection-start-line="20" selection-start-column="41" selection-end-line="20" selection-end-column="41" />
+            <state vertical-scroll-proportion="0.40429044" vertical-offset="4904" max-vertical-offset="5510">
+              <caret line="271" column="25" selection-start-line="271" selection-start-column="25" selection-end-line="271" selection-end-column="25" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
               </folding>
@@ -631,8 +631,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Record.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6270627" vertical-offset="0" max-vertical-offset="5301">
-          <caret line="20" column="41" selection-start-line="20" selection-start-column="41" selection-end-line="20" selection-end-column="41" />
+        <state vertical-scroll-proportion="0.40429044" vertical-offset="4904" max-vertical-offset="5510">
+          <caret line="271" column="25" selection-start-line="271" selection-start-column="25" selection-end-line="271" selection-end-column="25" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>

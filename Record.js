@@ -13,7 +13,8 @@ var record = [];
 var cu1, cu2;
 
 /*
- 将两个textarea渲染成了CodeMirror对象，显示行号
+ 将两个textarea渲染成了CodeMirror对象，均显示行号
+ 回放框设置只读
  */
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     lineNumbers: true
@@ -258,6 +259,16 @@ function replay() {
                         else {
                             reeditor.addSelection(CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
                                 CodeMirror.Pos(record[j].line, record[j].ch));
+                        }
+                    }
+                    /*
+                    处理三击选中行
+                     */
+                    if ( record[j].select != reeditor.getSelection && record[j + 1].action == "selected" ) {
+                        j++;
+                        if ( record[j].select == reeditor.getLine(record[j].line - 1) + "\n" ) {
+                            reeditor.setSelection(CodeMirror.Pos(record[j].line - 1, 0),
+                                CodeMirror.Pos(record[j].line, 0));
                         }
                     }
                 }
