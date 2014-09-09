@@ -2,13 +2,13 @@
  * Created by WenryXu on 2014/9/5 0005.
  */
 /*
- 已知问题：不支持中文输入，不支持双击选中单词与三击选中整行
+ 已知问题：不支持中文输入，不支持双击选中单词，不支持三击选中行
  */
 /*
  录制
  */
-var i = 0, j = 0, flag = 0, indent = 0;
-var time, beginTime, outTime, word, beginWord, action, select, beginLine;
+var i = 0, j = 0, indent = 0;
+var time, beginTime, word, beginWord, action, select, beginLine;
 var record = [];
 var cu1, cu2;
 
