@@ -19,7 +19,8 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     lineNumbers: true
 });
 var reeditor = CodeMirror.fromTextArea(document.getElementById("re"), {
-    lineNumbers: true
+    lineNumbers: true,
+    readOnly: true
 });
 
 /*
