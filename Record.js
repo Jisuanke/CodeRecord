@@ -2,7 +2,7 @@
  * Created by WenryXu on 2014/9/5 0005.
  */
 /*
- 已知问题：不支持中文输入，不支持双击选中单词，不支持三击选中行
+ 已知问题：不支持中文输入
  */
 /*
  录制
@@ -264,12 +264,31 @@ function replay() {
                     /*
                     处理三击选中行
                      */
-                    if ( record[j].select != reeditor.getSelection && record[j + 1].action == "selected" ) {
+                    if ( record[j].select != reeditor.getSelection() && record[j + 1].action == "selected" ) {
                         j++;
                         if ( record[j].select == reeditor.getLine(record[j].line - 1) + "\n" ) {
                             reeditor.setSelection(CodeMirror.Pos(record[j].line - 1, 0),
                                 CodeMirror.Pos(record[j].line, 0));
                         }
+                    }
+                    /*
+                    处理双击选中单词
+                     */
+                    else if ( record[j].select != reeditor.getSelection() && record[j - 1].action == "move" ) {
+                        var ch1 = record[j - 1].ch;
+                        for ( ; ; ) {
+                            var gs = reeditor.getSelection();
+                            if ( gs[0] == " " ) {
+                                break;
+                            }
+                            if ( ch1 == 0 ) {
+                                break;
+                            }
+                            reeditor.addSelection(CodeMirror.Pos(record[j - 1].line, ch1--),
+                                CodeMirror.Pos(record[j - 1].line, ch1 + 1));
+                        }
+                        reeditor.setSelection(CodeMirror.Pos(record[j].line, ch1 + 2),
+                            CodeMirror.Pos(record[j].line, record[j].ch));
                     }
                 }
             }
