@@ -277,18 +277,12 @@ function replay() {
                     else if ( record[j].select != reeditor.getSelection() && record[j - 1].action == "move" ) {
                         var ch1 = record[j - 1].ch;
                         for ( ; ; ) {
-                            var gs = reeditor.getSelection();
-                            if ( gs[0] == " " ) {
+                            if ( reeditor.getSelection() == record[j].select ) {
                                 break;
                             }
-                            if ( ch1 == 0 ) {
-                                break;
-                            }
-                            reeditor.addSelection(CodeMirror.Pos(record[j - 1].line, ch1--),
-                                CodeMirror.Pos(record[j - 1].line, ch1 + 1));
+                            reeditor.setSelection(CodeMirror.Pos(record[j - 1].line, ch1--),
+                                CodeMirror.Pos(record[j].line, record[j].ch));
                         }
-                        reeditor.setSelection(CodeMirror.Pos(record[j].line, ch1 + 2),
-                            CodeMirror.Pos(record[j].line, record[j].ch));
                     }
                 }
             }
