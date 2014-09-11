@@ -43,7 +43,7 @@ editor.on("cursorActivity", function () {
      文本区首次操作是插入操作
      文本区默认为空
      */
-    if ( i == 0 ) {
+    if ( i === 0 ) {
         beginTime = date.getTime();
         time = 0;
         word = editor.getValue();
@@ -61,7 +61,7 @@ editor.on("cursorActivity", function () {
         beginTime = date.getTime();
         cu2 = editor.getCursor();
 
-        if ( word == "" ) {
+        if ( word === "" ) {
             action = "clean";
         }
 
@@ -79,7 +79,7 @@ editor.on("cursorActivity", function () {
              操作内容 word 为新插入的内容
              */
             var cu = editor.getCursor();
-            if ( editor.getRange(CodeMirror.Pos(cu.line, cu.ch - 1), cu ) != "" ) {
+            if ( editor.getRange(CodeMirror.Pos(cu.line, cu.ch - 1), cu ) !== "" ) {
                 word = editor.getRange(CodeMirror.Pos(cu.line, cu.ch - 1), cu);
             }
         }
@@ -105,7 +105,7 @@ editor.on("cursorActivity", function () {
                 /*
                  处理覆盖从前向后选择的内容时无法获取 insert 的 content
                  */
-                if ( word == "" ) {
+                if ( word === "" ) {
                     word = editor.getRange(CodeMirror.Pos(cu1.line, cu1.ch - 1), cu2);
                 }
                 action = "insert";
@@ -128,7 +128,7 @@ editor.on("cursorActivity", function () {
      操作内容为空
      */
     select = editor.getSelection();
-    if ( select != "" ) {
+    if ( select !== "" ) {
         action = "selected";
         word = "";
     }
@@ -157,7 +157,7 @@ function replay() {
     /*
      初始化回放文本区
      */
-    if ( j == 0 ) {
+    if ( j === 0 ) {
         reeditor.setValue(record[j].content);
         reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
         j++;
@@ -190,7 +190,7 @@ function replay() {
                 reeditor.replaceSelection("");
                 reeditor.replaceRange("\n", CodeMirror.Pos(record[j].line, record[j].ch),
                     CodeMirror.Pos(record[j].line, record[j].ch));
-                if ( record[j].indent != 0 ) {
+                if ( record[j].indent !== 0 ) {
                     for ( var c = 0; c < record[j].indent; c++ ) {
                         reeditor.replaceRange(" ", reeditor.getCursor(), reeditor.getCursor());
                     }
