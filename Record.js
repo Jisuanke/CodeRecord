@@ -140,7 +140,7 @@ editor.on("cursorActivity", function () {
      onTime：与上一次操作的相对时间间隔；action：进行的操作代号；select：被选中的内容
      */
     if(ime_on == false){
-        record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
+        record.push({"i":i, "line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
         console.log(record[i]);
         i++;
         cu1 = editor.getCursor();
@@ -154,17 +154,24 @@ editor.on("cursorActivity", function () {
 
 function save(){
     var pos = editor.getCursor();
+    if ( i === 0 ) {
+        cu1 = 0;
+    }
     if(cu1 != pos){
-        record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
+        record.push({"i":i, "line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
         console.log(record[i]);
     }
+}
+
+function play(){
+    save();
+    replay();
 }
 
 /*
  回放，递归
  */
 function replay() {
-    save();
     reeditor.focus();
     /*
      初始化回放文本区
