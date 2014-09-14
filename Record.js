@@ -138,7 +138,7 @@
          onTime：与上一次操作的相对时间间隔；action：进行的操作代号；select：被选中的内容
          */
         if (ime_on == false) {
-            record.push({"i": i, "line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
+            record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
             console.log(record[i]);
             i++;
             cu1 = editor.getCursor();
@@ -159,7 +159,7 @@
             if ( i == 0 ) {
                 time = 0;
             }
-            record.push({"i": i, "line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
+            record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
             console.log(record[i]);
             i++;
         }
@@ -287,7 +287,11 @@
                          */
                         if (record[j].select != reeditor.getSelection() && record[j + 1].action == "selected") {
                             j++;
-                            if (record[j].select == reeditor.getLine(record[j].line - 1) + "\n") {
+                            if (record[j].select == reeditor.getLine(record[j].line)) {
+                                reeditor.setSelection(CodeMirror.Pos(record[j].line, 0),
+                                    CodeMirror.Pos(record[j].line, record[j].select.length));
+                            }
+                            else if ( record[j].select == reeditor.getLine(record[j].line - 1) + "\n" ) {
                                 reeditor.setSelection(CodeMirror.Pos(record[j].line - 1, 0),
                                     CodeMirror.Pos(record[j].line, 0));
                             }
