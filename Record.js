@@ -156,6 +156,9 @@
             cu1 = 0;
         }
         if (cu1 != pos) {
+            if ( i == 0 ) {
+                time = 0;
+            }
             record.push({"i": i, "line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
             console.log(record[i]);
             i++;
