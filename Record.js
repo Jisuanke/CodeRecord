@@ -11,6 +11,8 @@ var i = 0, j = 0, indent = 0;
 var time, beginTime, word, beginWord, action, select, beginLine;
 var record = [];
 var cu1, cu2;
+var ime_on = false;
+var ime_counter = 0;
 
 /*
  将两个textarea渲染成了CodeMirror对象，均显示行号
@@ -28,6 +30,15 @@ var reeditor = CodeMirror.fromTextArea(document.getElementById("re"), {
  给输入文本框焦点
  */
 editor.focus();
+
+editor.on("keydown", function (obj, e) {
+    if(229 == e.keyCode){
+        ime_on = true;
+    }
+    else{
+        ime_on = false;
+    }
+});
 
 /*
  事件：光标活动
@@ -83,16 +94,6 @@ editor.on("cursorActivity", function () {
                 word = editor.getRange(CodeMirror.Pos(cu.line, cu.ch - 1), cu);
             }
         }
-        /*
-         判断换行行为（action：enter）
-         如果当前操作位置的行号大于上一操作位置的行号，说明进行了换行操作
-         换行操作的操作内容 word 为换行符 \\n
-         */
-        else if ( editor.lineCount() > beginLine ) {
-            word = "\\n";
-            action = "enter";
-            indent = editor.getCursor().ch;
-        }
         else {
             /*
              判断输入行为（action：insert）
@@ -106,7 +107,7 @@ editor.on("cursorActivity", function () {
                  处理覆盖从前向后选择的内容时无法获取 insert 的 content
                  */
                 if ( word === "" ) {
-                    word = editor.getRange(CodeMirror.Pos(cu1.line, cu1.ch - 1), cu2);
+                    word = editor.getRange(CodeMirror.Pos(cu1.line, cu1.ch-1), cu2);
                 }
                 action = "insert";
             }
@@ -138,15 +139,19 @@ editor.on("cursorActivity", function () {
      line：当前操作位置行号；ch：当前行操作位置；content：当前操作的内容；
      onTime：与上一次操作的相对时间间隔；action：进行的操作代号；select：被选中的内容
      */
-    record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
-    console.log(record[i]);
+    if(ime_on == false){
+        record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
+        console.log(record[i]);
+        i++;
+        cu1 = editor.getCursor();
+    }
     /*
      提供给下一轮循环使用的变量
      */
-    cu1 = editor.getCursor();
     beginWord = editor.getValue();
     beginLine = editor.lineCount();
-    i++;
+    keyd = false;
+    keyp = false;
 });
 
 /*
