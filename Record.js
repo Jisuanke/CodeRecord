@@ -150,14 +150,21 @@ editor.on("cursorActivity", function () {
      */
     beginWord = editor.getValue();
     beginLine = editor.lineCount();
-    keyd = false;
-    keyp = false;
 });
+
+function save(){
+    var pos = editor.getCursor();
+    if(cu1 != pos){
+        record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
+        console.log(record[i]);
+    }
+}
 
 /*
  回放，递归
  */
 function replay() {
+    save();
     reeditor.focus();
     /*
      初始化回放文本区
