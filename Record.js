@@ -160,8 +160,8 @@ function save(){
     if(cu1 != pos){
         record.push({"i":i, "line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
         console.log(record[i]);
+        i++;
     }
-    i++;
 }
 
 function play(){
