@@ -2,9 +2,6 @@
  * Created by WenryXu on 2014/9/5 0005.
  */
 /*
- 已知问题：不支持中文输入
- */
-/*
  录制
  */
 //(function() {
