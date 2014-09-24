@@ -19,7 +19,7 @@ I don't know. You can figure it out.
 
 ###BUGS
 
-Can't perfect support IME.
+Can't support IME perfect.
 
 ###AUTHOR
 
