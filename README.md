@@ -1,37 +1,31 @@
 CodeRecord
 ==========
 
-##WHAT IS THIS
+###WHAT IS THIS
 
 CodeRecord is a JavaScript program based on [CodeMirror](https://github.com/codemirror/CodeMirror).
 
-
-##WHAT TO DO
+###WHAT TO DO
 
 Recording input process and playback it.
 
-
-##DEMO
+###DEMO
 
 http://www.wenryxu.com/coderecord/ 
 
-
-##HOW TO USE IT
+###HOW TO USE IT
 
 I don't know. You can figure it out.
 
-
-##BUGS
+###BUGS
 
 Can't perfect support IME.
 
-
-##AUTHOR
+###AUTHOR
 
 [WenryXu](https://github.com/WenryXu) and [Haoran Yu](https://github.com/haoranyu)
 
-
-##LICENSE
+###LICENSE
 
 Copyright 2014-2015 WenryXu
 
