@@ -5,7 +5,7 @@ CodeRecord
 
 CodeRecord 是一个使用 JavaScript 编写的基于 [CodeMirror](https://github.com/codemirror/CodeMirror) 的功能。
 
-属于对 CodeMirror 的应用，而不是一个 CodeMirror 上的一个组件或插件。
+它只是对 CodeMirror 的应用，而不是一个 CodeMirror 上的组件或插件。
 
 它做的事情就是记录下用户的输入过程，然后进行回放。无论在空间上还是在时间上。
 
