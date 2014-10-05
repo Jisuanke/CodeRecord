@@ -57,10 +57,6 @@ editor.on("cursorActivity", function () {
     beginTime = date.getTime();
     cu2 = editor.getCursor();
 
-    if (word === "") {
-        action = "clean";
-    }
-
     /*
      action: backspace
      */
