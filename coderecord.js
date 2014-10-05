@@ -25,7 +25,7 @@ var ime_on = false;
  event: keydown
  */
 editor.on("keydown", function (obj, e) {
-    if (229 == e.keyCode) {
+    if ( e.keyCode == 229) {
         ime_on = true;
     }
     else {
@@ -41,7 +41,7 @@ if (i === 0) {
     time = 0;
     beginWord ="";
     word = editor.getValue();
-    action = "insert";
+    action = "i";
     cu1 = editor.getCursor();
     beginLine = editor.lineCount();
 }
@@ -62,7 +62,7 @@ editor.on("cursorActivity", function () {
      */
     if (word.length < beginWord.length) {
         word = "";
-        action = "backspace";
+        action = "b";
         var cu = editor.getCursor();
         if (editor.getRange(CodeMirror.Pos(cu.line, cu.ch - 1), cu) !== "") {
             word = editor.getRange(CodeMirror.Pos(cu.line, cu.ch - 1), cu);
@@ -79,14 +79,14 @@ editor.on("cursorActivity", function () {
             if (word === "") {
                 word = editor.getRange(CodeMirror.Pos(cu1.line, cu1.ch - 1), cu2);
             }
-            action = "insert";
+            action = "i";
         }
         /*
          action: move
          */
         else {
             word = "";
-            action = "move";
+            action = "m";
         }
     }
     /*
@@ -94,7 +94,7 @@ editor.on("cursorActivity", function () {
      */
     select = editor.getSelection();
     if (select !== "") {
-        action = "selected";
+        action = "s";
         word = "";
     }
 
@@ -102,7 +102,7 @@ editor.on("cursorActivity", function () {
      JSON
      */
     if (ime_on == false) {
-        record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
+        record.push({"l": pos.line, "n": pos.ch, "c": word, "t": time, "a": action, "s": select, "i": indent});
         console.log(record[i]);
         i++;
         cu1 = editor.getCursor();
@@ -121,7 +121,7 @@ function save() {
         if ( i == 0 ) {
             time = 0;
         }
-        record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
+        record.push({"l": pos.line, "n": pos.ch, "c": word, "t": time, "a": action, "s": select, "i": indent});
         console.log(record[i]);
         i++;
     }
@@ -139,8 +139,8 @@ function replay() {
     reeditor.focus();
 
     if (j === 0) {
-        reeditor.setValue(record[j].content);
-        reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+        reeditor.setValue(record[j].c);
+        reeditor.setCursor(CodeMirror.Pos(record[j].l, record[j].n));
         j++;
         replay();
     }
@@ -150,104 +150,104 @@ function replay() {
             /*
              action: insert
              */
-            if (record[j].action == "insert") {
+            if (record[j].a == "i") {
                 reeditor.replaceSelection("");
-                if (record[j - 1].action == "selected" && record[j - 1].ch >= record[j].ch) {
-                    reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j - 1].line, record[j - 1].ch - 1),
-                        CodeMirror.Pos(record[j - 1].line, record[j - 1].ch - 1));
+                if (record[j - 1].a == "s" && record[j - 1].n >= record[j].n) {
+                    reeditor.replaceRange(record[j].c, CodeMirror.Pos(record[j - 1].l, record[j - 1].n - 1),
+                        CodeMirror.Pos(record[j - 1].l, record[j - 1].n - 1));
                 }
                 else {
-                    reeditor.replaceRange(record[j].content, CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
-                        CodeMirror.Pos(record[j - 1].line, record[j - 1].ch));
+                    reeditor.replaceRange(record[j].c, CodeMirror.Pos(record[j - 1].l, record[j - 1].n),
+                        CodeMirror.Pos(record[j - 1].l, record[j - 1].n));
                 }
             }
             /*
-             action: enter
+             action: newline
              */
-            else if (record[j].action == "enter") {
+            else if (record[j].a == "n") {
                 reeditor.replaceSelection("");
-                reeditor.replaceRange("\n", CodeMirror.Pos(record[j].line, record[j].ch),
-                    CodeMirror.Pos(record[j].line, record[j].ch));
-                if (record[j].indent !== 0) {
-                    for (var c = 0; c < record[j].indent; c++) {
+                reeditor.replaceRange("\n", CodeMirror.Pos(record[j].l, record[j].n),
+                    CodeMirror.Pos(record[j].l, record[j].n));
+                if (record[j].i !== 0) {
+                    for (var c = 0; c < record[j].i; c++) {
                         reeditor.replaceRange(" ", reeditor.getCursor(), reeditor.getCursor());
                     }
                 }
-                reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch + record[j].indent));
+                reeditor.setCursor(CodeMirror.Pos(record[j].l, record[j].n + record[j].i));
             }
             /*
              action: move
              */
-            else if (record[j].action == "move") {
+            else if (record[j].a == "m") {
                 reeditor.setValue(reeditor.getValue());
-                reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+                reeditor.setCursor(CodeMirror.Pos(record[j].l, record[j].n));
             }
             /*
              action: backspace
              */
-            else if (record[j].action == "backspace") {
+            else if (record[j].a == "b") {
 
-                if (record[j - 1].action != "selected") {
-                    reeditor.replaceRange("", CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
-                        CodeMirror.Pos(record[j].line, record[j].ch));
-                    reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+                if (record[j - 1].a != "s") {
+                    reeditor.replaceRange("", CodeMirror.Pos(record[j - 1].l, record[j - 1].n),
+                        CodeMirror.Pos(record[j].l, record[j].n));
+                    reeditor.setCursor(CodeMirror.Pos(record[j].l, record[j].n));
                 }
 
                 else {
-                    reeditor.replaceSelection(record[j].content);
-                    reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
+                    reeditor.replaceSelection(record[j].c);
+                    reeditor.setCursor(CodeMirror.Pos(record[j].l, record[j].n));
                 }
             }
             /*
              action: selected
              */
-            else if (record[j].action == "selected") {
-                if (record[j].select == reeditor.getValue()) {
+            else if (record[j].a == "s") {
+                if (record[j].s == reeditor.getValue()) {
                     reeditor.setSelection(CodeMirror.Pos(reeditor.firstLine(), 0), CodeMirror.Pos(reeditor.lastLine()));
                 }
 
                 else {
-                    if (record[j - 1].action != "selected") {
-                        if (record[j - 1].line >= record[j].line && record[j - 1].ch >= record[j].ch) {
-                            reeditor.setSelection(CodeMirror.Pos(record[j].line, record[j].ch),
-                                CodeMirror.Pos(record[j - 1].line, record[j - 1].ch));
+                    if (record[j - 1].a != "s") {
+                        if (record[j - 1].l >= record[j].l && record[j - 1].n >= record[j].n) {
+                            reeditor.setSelection(CodeMirror.Pos(record[j].l, record[j].n),
+                                CodeMirror.Pos(record[j - 1].l, record[j - 1].n));
                         }
                         else {
-                            reeditor.setSelection(CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
-                                CodeMirror.Pos(record[j].line, record[j].ch));
+                            reeditor.setSelection(CodeMirror.Pos(record[j - 1].l, record[j - 1].n),
+                                CodeMirror.Pos(record[j].l, record[j].n));
                         }
                     }
                     else {
-                        if (record[j - 1].line >= record[j].line && record[j - 1].ch >= record[j].ch) {
-                            reeditor.addSelection(CodeMirror.Pos(record[j].line, record[j].ch),
-                                CodeMirror.Pos(record[j - 1].line, record[j - 1].ch));
+                        if (record[j - 1].l >= record[j].l && record[j - 1].n >= record[j].n) {
+                            reeditor.addSelection(CodeMirror.Pos(record[j].l, record[j].n),
+                                CodeMirror.Pos(record[j - 1].l, record[j - 1].n));
                         }
                         else {
-                            reeditor.addSelection(CodeMirror.Pos(record[j - 1].line, record[j - 1].ch),
-                                CodeMirror.Pos(record[j].line, record[j].ch));
+                            reeditor.addSelection(CodeMirror.Pos(record[j - 1].l, record[j - 1].n),
+                                CodeMirror.Pos(record[j].l, record[j].n));
                         }
                     }
 
-                    if (record[j].select != reeditor.getSelection() && record[j + 1].action == "selected") {
+                    if (record[j].s != reeditor.getSelection() && record[j + 1].a == "s") {
                         j++;
-                        if (record[j].select == reeditor.getLine(record[j].line)) {
-                            reeditor.setSelection(CodeMirror.Pos(record[j].line, 0),
-                                CodeMirror.Pos(record[j].line, record[j].select.length));
+                        if (record[j].s == reeditor.getLine(record[j].l)) {
+                            reeditor.setSelection(CodeMirror.Pos(record[j].l, 0),
+                                CodeMirror.Pos(record[j].l, record[j].s.length));
                         }
-                        else if ( record[j].select == reeditor.getLine(record[j].line - 1) + "\n" ) {
-                            reeditor.setSelection(CodeMirror.Pos(record[j].line - 1, 0),
-                                CodeMirror.Pos(record[j].line, 0));
+                        else if ( record[j].s == reeditor.getLine(record[j].l - 1) + "\n" ) {
+                            reeditor.setSelection(CodeMirror.Pos(record[j].l - 1, 0),
+                                CodeMirror.Pos(record[j].l, 0));
                         }
                     }
 
-                    else if (record[j].select != reeditor.getSelection() && record[j - 1].action == "move") {
-                        var ch1 = record[j - 1].ch;
+                    else if (record[j].s != reeditor.getSelection() && record[j - 1].a == "m") {
+                        var ch1 = record[j - 1].n;
                         for (; ;) {
-                            if (reeditor.getSelection() == record[j].select) {
+                            if (reeditor.getSelection() == record[j].s) {
                                 break;
                             }
-                            reeditor.setSelection(CodeMirror.Pos(record[j - 1].line, ch1--),
-                                CodeMirror.Pos(record[j].line, record[j].ch));
+                            reeditor.setSelection(CodeMirror.Pos(record[j - 1].l, ch1--),
+                                CodeMirror.Pos(record[j].l, record[j].n));
                         }
                     }
                 }
@@ -259,6 +259,6 @@ function replay() {
             else {
                 replay();
             }
-        }, parseInt(record[j].onTime));
+        }, parseInt(record[j].t));
     }
 }
