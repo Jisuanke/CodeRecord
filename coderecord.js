@@ -25,7 +25,7 @@ var ime_on = false;
  event: keydown
  */
 editor.on("keydown", function (obj, e) {
-    if (229 == e.keyCode) {
+    if ( e.keyCode == 229 ) {
         ime_on = true;
     }
     else {
