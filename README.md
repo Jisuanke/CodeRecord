@@ -11,7 +11,7 @@ CodeRecord 是一个使用 JavaScript 编写的基于 [CodeMirror](https://githu
 
 ###DEMO
 
-http://www.wenryxu.com/coderecord/ 
+http://wenryxu.github.io/CodeRecord/ 
 
 ###使用
 
