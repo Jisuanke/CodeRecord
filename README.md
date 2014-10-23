@@ -25,6 +25,10 @@ http://wenryxu.github.io/CodeRecord/
 
 [WenryXu](https://github.com/WenryXu) and [Haoran Yu](https://github.com/haoranyu)
 
+###贡献者
+
+@金嘉宇
+
 ###LICENSE
 
 Copyright 2014-2015 WenryXu
