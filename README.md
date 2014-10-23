@@ -19,6 +19,8 @@ http://wenryxu.github.io/CodeRecord/
 
 不支持中文输入。尽管对中文做了一小部分支持，但在使用中文时仍会出现各种问题。
 
+完全没有处理选中后拖拽文字的情况。
+
 ###作者
 
 [WenryXu](https://github.com/WenryXu) and [Haoran Yu](https://github.com/haoranyu)
