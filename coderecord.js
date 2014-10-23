@@ -114,7 +114,13 @@ editor.on("cursorActivity", function () {
 
 function save() {
     var pos = editor.getCursor();
+    if (i == 0) {
+        cu1 = 0;
+    }
     if (cu1 != pos) {
+        if ( i == 0 ) {
+            time = 0;
+        }
         record.push({"line": pos.line, "ch": pos.ch, "content": word, "onTime": time, "action": action, "select": select, "indent": indent});
         console.log(record[i]);
         i++;
@@ -188,7 +194,7 @@ function replay() {
                 }
 
                 else {
-                    reeditor.replaceSelection(record[j].content);
+                    reeditor.replaceSelection("");
                     reeditor.setCursor(CodeMirror.Pos(record[j].line, record[j].ch));
                 }
             }
