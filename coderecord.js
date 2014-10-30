@@ -5,7 +5,8 @@
  recording
  */
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-    lineNumbers: true
+    lineNumbers: true,
+    smartIndent: false
 });
 var reeditor = CodeMirror.fromTextArea(document.getElementById("re"), {
     lineNumbers: true,
