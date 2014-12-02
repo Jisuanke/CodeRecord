@@ -9,7 +9,7 @@ CodeRecord 是一个使用 JavaScript 编写的基于 [CodeMirror](https://githu
 
 ###DEMO
 
-http://wenryxu.github.io/CodeRecord/ 
+http://www.wenryxu.com/coderecord/ 
 
 ###使用
 
